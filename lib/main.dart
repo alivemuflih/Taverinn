@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'l10n/app_localizations.dart';
 import 'screens/auth_screen.dart';
 import 'screens/main_screen.dart';
+import 'theme/app_theme.dart';
+import 'theme/app_preferences.dart';
 
 const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final preferences = await AppPreferences.load();
 
   if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
-    runApp(const MissingConfigApp());
+    runApp(MissingConfigApp(preferences: preferences));
     return;
   }
 
@@ -20,26 +25,45 @@ Future<void> main() async {
     anonKey: supabaseAnonKey,
   );
 
-  runApp(const TaverinnApp());
+  runApp(TaverinnApp(preferences: preferences));
 }
 
 class TaverinnApp extends StatelessWidget {
-  const TaverinnApp({super.key});
+  const TaverinnApp({super.key, required this.preferences});
+
+  final AppPreferences preferences;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Taverinn',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.indigo,
-        scaffoldBackgroundColor: const Color(0xFFF7F8FC),
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
+    return AnimatedBuilder(
+      animation: preferences,
+      builder: (context, _) => MaterialApp(
+        title: 'Taverinn',
+        debugShowCheckedModeBanner: false,
+        theme: TaverinnTheme.light,
+        darkTheme: TaverinnTheme.dark,
+        themeMode: preferences.themeMode,
+        locale: preferences.locale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        localeResolutionCallback: (locale, supported) {
+          if (locale == null) return const Locale('id');
+          return supported.firstWhere(
+            (item) => item.languageCode == locale.languageCode,
+            orElse: () => const Locale('en'),
+          );
+        },
+        builder: (context, child) => AppPreferencesScope(
+          preferences: preferences,
+          child: child ?? const SizedBox.shrink(),
         ),
+        home: const AuthGate(),
       ),
-      home: const AuthGate(),
     );
   }
 }
@@ -55,23 +79,40 @@ class AuthGate extends StatelessWidget {
 }
 
 class MissingConfigApp extends StatelessWidget {
-  const MissingConfigApp({super.key});
+  const MissingConfigApp({super.key, required this.preferences});
+
+  final AppPreferences preferences;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              'Supabase belum dikonfigurasi.\n\n'
-              'Jalankan dengan:\n'
-              'flutter run -d chrome --dart-define=SUPABASE_URL=... '
-              '--dart-define=SUPABASE_ANON_KEY=...',
-              textAlign: TextAlign.center,
+    return AnimatedBuilder(
+      animation: preferences,
+      builder: (context, _) => MaterialApp(
+        theme: TaverinnTheme.light,
+        darkTheme: TaverinnTheme.dark,
+        themeMode: preferences.themeMode,
+        locale: preferences.locale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                AppLocalizations.of(context).missingSupabase,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
+        ),
+        builder: (context, child) => AppPreferencesScope(
+          preferences: preferences,
+          child: child ?? const SizedBox.shrink(),
         ),
       ),
     );

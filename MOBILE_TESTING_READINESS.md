@@ -4,8 +4,8 @@
 
 - Implementasi utama Phase 1 dan Phase 2 dipertahankan. Phase 3 tidak termasuk ruang lingkup.
 - Audit ini tidak menghubungkan atau mengubah database Supabase.
-- Build Web berhasil. Build APK debug terhambat oleh instalasi NDK Android pada mesin ini.
-- Belum ada Maestro flow YAML yang dapat diklaim runnable: Maestro tidak tersedia, dan APK belum berhasil dibuat untuk memeriksa accessibility hierarchy di Android.
+- Build Web dan APK debug berhasil pada pemeriksaan UI polish tanggal 2026-11-14.
+- Belum ada Maestro flow YAML yang dapat diklaim runnable: Maestro CLI dan pengujian accessibility hierarchy pada perangkat belum tersedia.
 
 ## Android
 
@@ -19,21 +19,19 @@
 | Gradle runtime | Android Studio JBR OpenJDK 25.0.4 terdeteksi pada mesin ini |
 | Gradle | Wrapper 9.3.1; Android Gradle Plugin 9.1.0; Kotlin plugin 2.4.0 |
 | SDK levels | `compileSdk`, `targetSdk`, `minSdk`, dan NDK mengikuti default Flutter SDK, bukan angka yang ditetapkan repository |
-| APK debug | Gagal pada environment: Android SDK Manager melaporkan package NDK `28.2.13676358` tidak ditemukan/tidak terpasang |
+| APK debug | Berhasil dibangun: `build/app/outputs/flutter-apk/app-debug.apk` |
 | Android runtime | Belum diuji pada emulator/perangkat fisik |
-
-Perintah APK sempat mengunduh/memasang Android CLI, lalu berhenti saat SDK Manager tidak dapat memasang NDK yang diminta. Tidak ada perubahan source untuk mencoba melewati kegagalan tersebut. Periksa Android SDK Manager/NDK installation dan ulangi build setelah toolchain diperbaiki.
 
 ## Flutter checks
 
 | Command | Hasil |
 |---|---|
 | `flutter pub get` | Berhasil. Lima paket memiliki versi lebih baru yang tidak cocok dengan constraint saat ini; tidak ada upgrade massal dilakukan. |
-| `dart analyze lib` | Exit 0; tidak ada error. Terdapat 5 info deprecation lama pada `anonKey`, 3 dropdown di `create_lfg_screen.dart`, dan dropdown di `game_dashboard_screen.dart`. |
+| `dart analyze lib` | Exit 0; tidak ada error. Ada 5 info deprecation pada `anonKey`, 3 dropdown di `create_lfg_screen.dart`, dan dropdown di `game_dashboard_screen.dart`. |
 | `flutter test` | Lulus: 11 unit/kontrak test. Test kontrak memeriksa SQL repository, bukan database aktif. |
 | `flutter build web` | Berhasil. |
-| `flutter build apk --debug` | Gagal karena NDK `28.2.13676358` tidak ditemukan oleh Android SDK Manager pada environment ini. |
-| `flutter analyze` | Exit 1 karena 5 info deprecation yang sama; tidak ada error atau warning baru dari perubahan readiness. |
+| `flutter build apk --debug` | Berhasil. |
+| `flutter analyze` | Exit 1 karena 5 info deprecation yang sama; tidak ada error atau warning. |
 
 Tidak ada manual test, realtime/two-account test, Android device test, atau Maestro test yang dijalankan. `adb.exe` tersedia di Android SDK lokal tetapi tidak ada di PATH; pemanggilan langsung gagal saat mencoba membuat `\.android` karena environment Android home mengarah ke root yang tidak dapat ditulis.
 
@@ -77,13 +75,19 @@ Tidak ada manual test, realtime/two-account test, Android device test, atau Maes
 - `GameDashboardScreen` — tambah dan lihat game sendiri
 - `MissingConfigApp` — pesan bila Supabase URL/key tidak diberikan
 
-Poin yang perlu dites di device: keyboard/resize, scroll dan overflow pada layar kecil, tombol Back, loading/error/empty state, serta perpindahan route saat host mengakhiri party. Audit memperbaiki pembedaan feed error dari feed kosong, pembatalan filter yang sebelumnya dianggap sebagai pilihan "Semua", dan dispose controller pada screen yang memilikinya.
+Poin yang perlu dites di device: keyboard/resize, scroll dan overflow pada layar kecil, tombol Back, loading/error/empty state, serta perpindahan route saat host mengakhiri party. Audit sebelumnya memperbaiki pembedaan feed error dari feed kosong, pembatalan filter yang sebelumnya dianggap sebagai pilihan "Semua", dan dispose controller pada screen yang memilikinya.
 
 Guard tambahan mencegah `PartyRoomScreen` membersihkan controller setelah room sudah ditutup saat request chat masih berjalan. Tombol kirim chat memiliki tooltip agar label aksinya tersedia untuk accessibility/selector.
 
+## UI polish dan selector
+
+Pemeriksaan 2026-11-14 merapikan ThemeData terpusat, warna cream/espresso/brass, tipografi heading serif, field, card, chip, tombol, navigasi, dialog, dan snackbar. Feed, create party, party room, profile, follow list, dan game dashboard memakai state kosong/error/retry yang lebih jelas serta batas lebar pada layout desktop.
+
+Widget kunci untuk alur login, navigasi, feed party/filter/join, create party, roster/chat/aksi party, follow, dan dashboard diberi `ValueKey` stabil. Key Flutter ini membantu identifikasi saat pengembangan, tetapi belum dianggap sebagai selector Maestro sebelum dicek pada accessibility hierarchy Android. Tidak ada selector berbasis index yang ditambahkan.
+
 ## Maestro preparation
 
-Folder `maestro/` disiapkan untuk flow. Selector teks di bawah berasal dari label/teks yang memang ada di widget, tetapi belum diverifikasi terhadap accessibility hierarchy Android. Karena APK belum terbangun dan Maestro CLI belum tersedia, belum dibuat flow YAML yang diklaim siap jalan.
+Folder `maestro/` disiapkan untuk flow. Selector teks di bawah berasal dari label/teks yang memang ada di widget, tetapi belum diverifikasi terhadap accessibility hierarchy Android. Maestro CLI belum tersedia, jadi belum dibuat flow YAML yang diklaim siap jalan.
 
 Flow yang direkomendasikan setelah Android runtime tersedia:
 
@@ -128,4 +132,4 @@ Join, roster, Ready, chat, Leave, End Party dan penghapusan room perlu dua akun/
 
 ## Readiness conclusion
 
-Belum siap untuk menyatakan **Mobile Testing dengan Maestro** dimulai: Web dan Flutter unit checks lulus, tetapi APK belum berhasil dibangun, Maestro CLI tidak ditemukan di PATH, accessibility selectors belum diverifikasi pada Android, dan realtime Supabase belum diuji dua akun pada device. Lanjutkan setelah NDK terpasang, APK berhasil dibuat/dijalankan, Maestro tersedia, lalu jalankan checklist realtime dengan akun testing.
+Build Web, APK debug, dan Flutter unit checks berhasil. **Mobile Testing dengan Maestro** belum siap dimulai karena Maestro CLI tidak ditemukan di PATH, accessibility selectors belum diverifikasi pada Android, aplikasi belum dijalankan pada emulator/perangkat, dan realtime Supabase belum diuji dengan dua akun. Lanjutkan dengan pemeriksaan hierarchy pada perangkat, instalasi Maestro, lalu checklist realtime dengan akun testing.

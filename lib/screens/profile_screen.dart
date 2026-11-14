@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../services/supabase_service.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
+import '../theme/app_preferences.dart';
 import '../utils/social_profile_logic.dart';
+import '../widgets/guild_motif.dart';
+import '../widgets/taverinn_icon.dart';
 import 'auth_screen.dart';
 import 'follow_list_screen.dart';
 import 'game_dashboard_screen.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key, this.userId});
@@ -24,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isFollowing = false;
   bool loading = true;
   bool updatingFollow = false;
+  String? loadError;
 
   String get targetUserId => widget.userId ?? SupabaseService.currentUser!.id;
   bool get isOwnProfile => targetUserId == SupabaseService.currentUser?.id;
@@ -35,7 +42,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> load() async {
-    if (mounted) setState(() => loading = true);
+    if (mounted) {
+      setState(() {
+        loading = true;
+        loadError = null;
+      });
+    }
     try {
       final loadedProfile = await SupabaseService.getProfile(
         userId: targetUserId,
@@ -59,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isFollowing = followsTarget;
       });
     } catch (e) {
-      if (mounted) showSnack('Gagal memuat profile: $e');
+      if (mounted) setState(() => loadError = 'error');
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -96,8 +108,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await SupabaseService.followUser(targetUserId);
       }
       await load();
-    } catch (e) {
-      if (mounted) showSnack('Gagal memperbarui follow: $e');
+    } catch (_) {
+      if (mounted) showSnack(AppLocalizations.of(context).errorAction);
     } finally {
       if (mounted) setState(() => updatingFollow = false);
     }
@@ -122,10 +134,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return Expanded(
       child: InkWell(
+        key: ValueKey('profile_${label.toLowerCase()}_count'),
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: TaverinnSpace.x3),
           child: Column(
             children: [
               Text(
@@ -145,15 +158,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _activityStat(String label, int value) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: TaverinnSpace.x1,
+          vertical: TaverinnSpace.x3,
+        ),
         child: Column(
           children: [
             Text(
               '$value',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                fontWeight: FontWeight.bold,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
+            const SizedBox(height: TaverinnSpace.x1),
             Text(label, textAlign: TextAlign.center),
           ],
         ),
@@ -163,163 +181,308 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final username = profile?['username']?.toString() ?? 'User';
+    final strings = AppLocalizations.of(context);
+    final username = profile?['username']?.toString() ?? strings.userFallback;
     final avatarUrl = profile?['avatar_url']?.toString();
     final email = isOwnProfile ? SupabaseService.currentUser?.email ?? '' : '';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isOwnProfile ? 'Profile' : 'Player Profile'),
+        title:
+            Text(isOwnProfile ? strings.profileTitle : strings.playerProfile),
         actions: [
           if (isOwnProfile)
             IconButton(
+              key: const ValueKey('profile_logout_button'),
               onPressed: logout,
-              tooltip: 'Logout',
+              tooltip: strings.logout,
               icon: const Icon(Icons.logout),
             ),
         ],
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: load,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Center(
-                    child: CircleAvatar(
-                      radius: 42,
-                      backgroundImage: avatarUrl == null || avatarUrl.isEmpty
-                          ? null
-                          : NetworkImage(avatarUrl),
-                      child: avatarUrl == null || avatarUrl.isEmpty
-                          ? Text(
-                              username.isEmpty ? 'U' : username[0].toUpperCase(),
-                              style: const TextStyle(fontSize: 30),
+          : loadError != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(strings.errorLoading, textAlign: TextAlign.center),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: load,
+                          icon: const Icon(Icons.refresh),
+                          label: Text(strings.retry),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: load,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 760),
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                radius: 38,
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                backgroundImage:
+                                    avatarUrl == null || avatarUrl.isEmpty
+                                        ? null
+                                        : NetworkImage(avatarUrl),
+                                child: avatarUrl == null || avatarUrl.isEmpty
+                                    ? Text(
+                                        username.isEmpty
+                                            ? 'U'
+                                            : username[0].toUpperCase(),
+                                        style: const TextStyle(fontSize: 28),
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(width: TaverinnSpace.x4),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      username,
+                                      key: const ValueKey('profile_identity'),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall,
+                                    ),
+                                    if (email.isNotEmpty)
+                                      Text(
+                                        email,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                      ),
+                                    if (!isOwnProfile) ...[
+                                      const SizedBox(height: TaverinnSpace.x2),
+                                      OutlinedButton(
+                                        key: const ValueKey(
+                                          'profile_follow_button',
+                                        ),
+                                        onPressed: updatingFollow
+                                            ? null
+                                            : toggleFollow,
+                                        child: Text(
+                                          updatingFollow
+                                              ? strings.updating
+                                              : isFollowing
+                                                  ? strings.unfollow
+                                                  : strings.follow,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: TaverinnSpace.x4,
+                            ),
+                            child: GuildRule(),
+                          ),
+                          Row(
+                            children: [
+                              _followCount(
+                                label: strings.followers,
+                                count: followers,
+                                onTap: () =>
+                                    openFollowList(showFollowers: true),
+                              ),
+                              _followCount(
+                                label: strings.following,
+                                count: following,
+                                onTap: () =>
+                                    openFollowList(showFollowers: false),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: TaverinnSpace.x6),
+                          Text(
+                            strings.activity,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: TaverinnSpace.x2),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              border: Border.symmetric(
+                                horizontal: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                _activityStat(
+                                  strings.partiesCreated,
+                                  (stats['parties_created'] as num?)?.toInt() ??
+                                      0,
+                                ),
+                                VerticalDivider(
+                                  width: 1,
+                                  thickness: 1,
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                _activityStat(
+                                  strings.partiesJoined,
+                                  (stats['parties_joined'] as num?)?.toInt() ??
+                                      0,
+                                ),
+                                VerticalDivider(
+                                  width: 1,
+                                  thickness: 1,
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                _activityStat(
+                                  strings.playersMet,
+                                  (stats['players_met'] as num?)?.toInt() ?? 0,
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isOwnProfile) ...[
+                            const SizedBox(height: TaverinnSpace.x3),
+                            OutlinedButton.icon(
+                              key: const ValueKey('profile_game_dashboard'),
+                              onPressed: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const GameDashboardScreen(),
+                                  ),
+                                );
+                                if (mounted) await load();
+                              },
+                              icon: const Icon(Icons.sports_esports_outlined),
+                              label: Text(strings.manageGames),
+                            ),
+                          ],
+                          const SizedBox(height: TaverinnSpace.x8),
+                          Text(
+                            isOwnProfile ? strings.myGames : strings.games,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: TaverinnSpace.x3),
+                          if (userGames.isEmpty)
+                            Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(TaverinnSpace.x4),
+                                child: Text(
+                                  isOwnProfile
+                                      ? strings.noGamesInProfile
+                                      : strings.noGamesShown,
+                                ),
+                              ),
                             )
-                          : null,
+                          else
+                            ...userGames.map((item) {
+                              final game = item['games'];
+                              final gameName = game is Map
+                                  ? game['name']?.toString() ?? strings.game
+                                  : strings.game;
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: TaverinnSpace.x3,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                    border: Border.all(
+                                      color:
+                                          Theme.of(context).colorScheme.outline,
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                      TaverinnRadius.compact,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(
+                                    TaverinnSpace.x4,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        gameName,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge,
+                                      ),
+                                      const SizedBox(height: TaverinnSpace.x2),
+                                      Text(
+                                        '${strings.rank} ${item['rank']} · ${item['role']}\n'
+                                        '${item['games_played']} ${strings.gamesPlayed} · '
+                                        '${item['win_rate']}% ${strings.winRate}',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                          if (isOwnProfile) ...[
+                            const SizedBox(height: TaverinnSpace.x6),
+                            const GuildRule(),
+                            const SizedBox(height: TaverinnSpace.x2),
+                            ListTile(
+                              key: const ValueKey('profile_settings'),
+                              contentPadding: EdgeInsets.zero,
+                              leading: const TaverinnIcon(
+                                icon: Icons.settings_outlined,
+                                size: TaverinnIconSize.setting,
+                              ),
+                              title: Text(strings.settings),
+                              subtitle: Text(strings.settingsSubtitle),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => SettingsScreen(
+                                      preferences:
+                                          AppPreferencesScope.of(context),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: Text(
-                      username,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                  if (email.isNotEmpty) Center(child: Text(email)),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _followCount(
-                        label: 'Followers',
-                        count: followers,
-                        onTap: () => openFollowList(showFollowers: true),
-                      ),
-                      _followCount(
-                        label: 'Following',
-                        count: following,
-                        onTap: () => openFollowList(showFollowers: false),
-                      ),
-                    ],
-                  ),
-                  if (!isOwnProfile) ...[
-                    const SizedBox(height: 4),
-                    OutlinedButton(
-                      onPressed: updatingFollow ? null : toggleFollow,
-                      child: Text(
-                        updatingFollow
-                            ? 'Memperbarui...'
-                            : isFollowing
-                                ? 'Following'
-                                : 'Follow',
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  Text(
-                    'Activity Statistics',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  Row(
-                    children: [
-                      _activityStat(
-                        'Parties Created',
-                        (stats['parties_created'] as num?)?.toInt() ?? 0,
-                      ),
-                      _activityStat(
-                        'Parties Joined',
-                        (stats['parties_joined'] as num?)?.toInt() ?? 0,
-                      ),
-                      _activityStat(
-                        'Players Met',
-                        (stats['players_met'] as num?)?.toInt() ?? 0,
-                      ),
-                    ],
-                  ),
-                  if (isOwnProfile) ...[
-                    const SizedBox(height: 8),
-                    FilledButton.icon(
-                      onPressed: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const GameDashboardScreen(),
-                          ),
-                        );
-                        if (mounted) await load();
-                      },
-                      icon: const Icon(Icons.sports_esports),
-                      label: const Text('Game Dashboard'),
-                    ),
-                  ],
-                  const SizedBox(height: 20),
-                  Text(
-                    isOwnProfile ? 'My Games' : 'Games',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  if (userGames.isEmpty)
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Text(
-                          isOwnProfile
-                              ? 'Belum ada game di profile kamu.'
-                              : 'Belum ada game yang ditampilkan.',
-                        ),
-                      ),
-                    )
-                  else
-                    ...userGames.map((item) {
-                      final game = item['games'];
-                      final gameName = game is Map
-                          ? game['name']?.toString() ?? 'Game'
-                          : 'Game';
-                      return Card(
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            child: Text(gameName[0].toUpperCase()),
-                          ),
-                          title: Text(gameName),
-                          subtitle: Text(
-                            'Rank: ${item['rank']}\n'
-                            'Role: ${item['role']}\n'
-                            'Win Rate: ${item['win_rate']}%',
-                          ),
-                          isThreeLine: true,
-                        ),
-                      );
-                    }),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }

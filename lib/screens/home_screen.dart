@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../services/supabase_service.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
 import '../utils/party_room_logic.dart';
+import '../widgets/guild_motif.dart';
+import '../widgets/party_notice.dart';
 import 'party_room_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -59,10 +63,10 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       games = loadedGames;
       posts = loadedPosts;
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        setState(() => loadError = 'Gagal memuat data: $e');
-        showSnack('Gagal memuat data: $e');
+        setState(() => loadError = 'error');
+        showSnack(AppLocalizations.of(context).errorLoading);
       }
     } finally {
       if (mounted) setState(() => loading = false);
@@ -76,31 +80,55 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String gameName(Map<String, dynamic> post) {
+    final fallback = AppLocalizations.of(context).unknownGame;
     final game = post['games'];
-    return game is Map
-        ? (game['name'] ?? 'Unknown Game').toString()
-        : 'Unknown Game';
+    return game is Map ? (game['name'] ?? fallback).toString() : fallback;
   }
 
   String username(Map<String, dynamic> post) {
     final profile = post['profiles'];
-    return profile is Map ? (profile['username'] ?? 'User').toString() : 'User';
+    final fallback = AppLocalizations.of(context).userFallback;
+    return profile is Map
+        ? (profile['username'] ?? fallback).toString()
+        : fallback;
+  }
+
+  String displayLanguage(String value) {
+    final strings = AppLocalizations.of(context);
+    return switch (value) {
+      'Indonesia' => strings.languageIndonesia,
+      'English' => strings.languageEnglish,
+      'Japanese' => strings.languageJapanese,
+      'Other' => strings.other,
+      _ => value,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    final pageInset = MediaQuery.sizeOf(context).width >= 720 ? 32.0 : 16.0;
     return RefreshIndicator(
       onRefresh: load,
       child: CustomScrollView(
         slivers: [
           SliverAppBar(
             floating: true,
-            title: const Text(
-              'Taverinn',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            title: Row(
+              children: [
+                TaverinnSeal(size: 28),
+                const SizedBox(width: TaverinnSpace.x2),
+                Text(
+                  'Taverinn',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontFamily: 'serif',
+                      ),
+                ),
+              ],
             ),
             actions: [
               IconButton(
+                tooltip: strings.refresh,
                 onPressed: load,
                 icon: const Icon(Icons.refresh),
               ),
@@ -108,48 +136,53 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              padding: EdgeInsets.fromLTRB(
+                pageInset,
+                TaverinnSpace.x3,
+                pageInset,
+                TaverinnSpace.x1,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Cari party',
+                    strings.homeTitle,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                      'Temukan pemain berdasarkan game, rank, dan bahasa.'),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _filter(
-                          label: 'Game',
-                          value: selectedGame == null
-                              ? 'Semua'
-                              : games
-                                  .firstWhere(
-                                    (g) => g['id'].toString() == selectedGame,
-                                    orElse: () => {'name': 'Game'},
-                                  )['name']
-                                  .toString(),
-                          onTap: () => _chooseGame(),
-                        ),
-                        _filter(
-                          label: 'Rank',
-                          value: selectedRank ?? 'Semua',
-                          onTap: () => _chooseRank(),
-                        ),
-                        _filter(
-                          label: 'Bahasa',
-                          value: selectedLanguage ?? 'Semua',
-                          onTap: () => _chooseLanguage(),
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: TaverinnSpace.x1),
+                  Text(strings.feedDescription),
+                  const SizedBox(height: TaverinnSpace.x4),
+                  Wrap(
+                    spacing: TaverinnSpace.x2,
+                    runSpacing: TaverinnSpace.x2,
+                    children: [
+                      _filter(
+                        label: strings.game,
+                        value: selectedGame == null
+                            ? strings.all
+                            : games
+                                .firstWhere(
+                                  (g) => g['id'].toString() == selectedGame,
+                                  orElse: () => {'name': strings.game},
+                                )['name']
+                                .toString(),
+                        onTap: _chooseGame,
+                      ),
+                      _filter(
+                        label: strings.rank,
+                        value: selectedRank ?? strings.all,
+                        onTap: _chooseRank,
+                      ),
+                      _filter(
+                        label: strings.languageField,
+                        value: selectedLanguage == null
+                            ? strings.all
+                            : displayLanguage(selectedLanguage!),
+                        onTap: _chooseLanguage,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -168,12 +201,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(loadError!, textAlign: TextAlign.center),
+                      Text(strings.errorLoading, textAlign: TextAlign.center),
                       const SizedBox(height: 12),
                       FilledButton.icon(
                         onPressed: load,
                         icon: const Icon(Icons.refresh),
-                        label: const Text('Coba lagi'),
+                        label: Text(strings.retry),
                       ),
                     ],
                   ),
@@ -181,17 +214,60 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           else if (posts.isEmpty)
-            const SliverFillRemaining(
+            SliverFillRemaining(
+              hasScrollBody: false,
               child: Center(
-                child: Text('Belum ada party yang sesuai filter.'),
+                child: Padding(
+                  padding: const EdgeInsets.all(TaverinnSpace.x6),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const TaverinnSeal(size: 34),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      Text(
+                        strings.noParties,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      if (selectedGame != null ||
+                          selectedRank != null ||
+                          selectedLanguage != null)
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              selectedGame = null;
+                              selectedRank = null;
+                              selectedLanguage = null;
+                            });
+                            load();
+                          },
+                          icon: const Icon(Icons.filter_alt_off_outlined),
+                          label: Text(strings.clearFilters),
+                        )
+                      else
+                        OutlinedButton.icon(
+                          onPressed: load,
+                          icon: const Icon(Icons.refresh),
+                          label: Text(strings.refresh),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(
+                pageInset,
+                TaverinnSpace.x3,
+                pageInset,
+                TaverinnSpace.x6,
+              ),
               sliver: SliverList.separated(
                 itemCount: posts.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: TaverinnSpace.x3),
                 itemBuilder: (_, i) {
                   final post = posts[i];
                   return _postCard(post);
@@ -208,99 +284,58 @@ class _HomeScreenState extends State<HomeScreen> {
     required String value,
     required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: ActionChip(
-        label: Text('$label: $value'),
-        onPressed: onTap,
+    return OutlinedButton(
+      key: ValueKey('feed_filter_${label.toLowerCase()}'),
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(48, 44),
+        padding: const EdgeInsets.symmetric(horizontal: TaverinnSpace.x3),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('$label · $value', maxLines: 1, overflow: TextOverflow.ellipsis),
+          const SizedBox(width: TaverinnSpace.x1),
+          const Icon(Icons.expand_more, size: 18),
+        ],
       ),
     );
   }
 
   Widget _postCard(Map<String, dynamic> post) {
-    final current = post['current_players'] ?? 1;
-    final max = post['max_players'] ?? 5;
+    final current = (post['current_players'] as num?)?.toInt() ?? 1;
+    final max = (post['max_players'] as num?)?.toInt() ?? 5;
 
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _detail(post),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    child: Text(gameName(post)[0].toUpperCase()),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      gameName(post),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Chip(label: Text(post['status'] ?? 'open')),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  Chip(
-                    avatar: const Icon(Icons.emoji_events, size: 16),
-                    label: Text((post['rank'] ?? '-').toString()),
-                  ),
-                  Chip(
-                    avatar: const Icon(Icons.sports_esports, size: 16),
-                    label: Text((post['mode'] ?? '-').toString()),
-                  ),
-                  Chip(
-                    avatar: const Icon(Icons.translate, size: 16),
-                    label: Text((post['language'] ?? '-').toString()),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                post['description'] ?? '',
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Icon(Icons.groups_outlined, size: 18),
-                  const SizedBox(width: 6),
-                  Text('$current/$max pemain'),
-                  const Spacer(),
-                  Text('@${username(post)}'),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+    return PartyNotice(
+      key: ValueKey('party_card_${post['id']}'),
+      gameName: gameName(post),
+      rank: (post['rank'] ?? '-').toString(),
+      mode: (post['mode'] ?? '-').toString(),
+      language: (post['language'] ?? '-').toString(),
+      playTime: post['play_time']?.toString(),
+      currentPlayers: current,
+      maxPlayers: max,
+      host: '@${username(post)}',
+      isOpen: post['status']?.toString().toLowerCase() != 'full',
+      description: post['description']?.toString() ?? '',
+      onTap: () => _detail(post),
     );
   }
 
   Future<void> _chooseGame() async {
+    final strings = AppLocalizations.of(context);
     final result = await showModalBottomSheet<String?>(
       context: context,
       builder: (_) => ListView(
         children: [
           ListTile(
-            title: const Text('Semua game'),
+            key: const ValueKey('feed_game_filter_all'),
+            title: Text(strings.allGames),
             onTap: () => Navigator.pop(context, '__all__'),
           ),
           ...games.map(
             (game) => ListTile(
+              key: ValueKey('feed_game_filter_${game['id']}'),
               title: Text(game['name'].toString()),
               onTap: () => Navigator.pop(context, game['id'].toString()),
             ),
@@ -314,16 +349,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _chooseRank() async {
+    final strings = AppLocalizations.of(context);
     final result = await showModalBottomSheet<String?>(
       context: context,
       builder: (_) => ListView(
         children: [
           ListTile(
-            title: const Text('Semua rank'),
+            key: const ValueKey('feed_rank_filter_all'),
+            title: Text(strings.allRanks),
             onTap: () => Navigator.pop(context, '__all__'),
           ),
           ...ranks.map(
             (rank) => ListTile(
+              key: ValueKey('feed_rank_filter_$rank'),
               title: Text(rank),
               onTap: () => Navigator.pop(context, rank),
             ),
@@ -337,17 +375,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _chooseLanguage() async {
+    final strings = AppLocalizations.of(context);
     final result = await showModalBottomSheet<String?>(
       context: context,
       builder: (_) => ListView(
         children: [
           ListTile(
-            title: const Text('Semua bahasa'),
+            key: const ValueKey('feed_language_filter_all'),
+            title: Text(strings.allLanguages),
             onTap: () => Navigator.pop(context, '__all__'),
           ),
           ...languages.map(
             (language) => ListTile(
-              title: Text(language),
+              key: ValueKey('feed_language_filter_$language'),
+              title: Text(displayLanguage(language)),
               onTap: () => Navigator.pop(context, language),
             ),
           ),
@@ -360,6 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _detail(Map<String, dynamic> post) {
+    final strings = AppLocalizations.of(context);
     final currentPlayers = (post['current_players'] as num?)?.toInt() ?? 1;
     final maxPlayers = (post['max_players'] as num?)?.toInt() ?? 5;
     final canJoin = PartyRoomLogic.hasAvailableSlot(
@@ -371,55 +413,80 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       isScrollControlled: true,
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(TaverinnSpace.x4),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                gameName(post),
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                strings.partyDetails,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
-              const SizedBox(height: 8),
-              Text('${post['mode']} • ${post['rank']}'),
-              Text('${post['language']} • ${post['play_time']}'),
-              const SizedBox(height: 12),
-              Text(post['description'] ?? ''),
-              const SizedBox(height: 12),
+              const SizedBox(height: TaverinnSpace.x2),
               Text(
-                '${post['current_players']}/${post['max_players']} pemain',
+                gameName(post),
+                style: Theme.of(context).textTheme.headlineSmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: TaverinnSpace.x2),
+              const GuildRule(),
+              const SizedBox(height: TaverinnSpace.x3),
+              Wrap(
+                spacing: TaverinnSpace.x2,
+                runSpacing: TaverinnSpace.x1,
+                children: [
+                  Text('${post['mode']}'),
+                  Text('·',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary)),
+                  Text('${post['rank']}'),
+                  Text('${post['language']}'),
+                  if (post['play_time'] != null)
+                    Text(post['play_time'].toString()),
+                ],
+              ),
+              const SizedBox(height: TaverinnSpace.x3),
+              Text(post['description'] ?? ''),
+              const SizedBox(height: TaverinnSpace.x3),
+              Text(
+                strings.playerCount(currentPlayers, maxPlayers),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: TaverinnSpace.x4),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  icon: const Icon(Icons.group_add),
+                  key: const ValueKey('party_join_button'),
+                  icon: const Icon(Icons.group_add_outlined),
                   onPressed: canJoin
                       ? () async {
-                    Navigator.pop(context);
-                    try {
-                      await SupabaseService.joinParty(post['id'].toString());
-                      if (mounted) {
-                        showSnack('Berhasil bergabung ke party.');
-                        await load();
-                        if (!mounted) return;
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => PartyRoomScreen(
-                              postId: post['id'].toString(),
-                            ),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      if (mounted) showSnack('Tidak bisa join: $e');
-                    }
-                  }
+                          Navigator.pop(context);
+                          try {
+                            await SupabaseService.joinParty(
+                                post['id'].toString());
+                            if (mounted) {
+                              showSnack(strings.joinSuccess);
+                              await load();
+                              if (!mounted) return;
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => PartyRoomScreen(
+                                    postId: post['id'].toString(),
+                                  ),
+                                ),
+                              );
+                            }
+                          } catch (_) {
+                            if (mounted) showSnack(strings.joinFailure);
+                          }
+                        }
                       : null,
-                  label: Text(canJoin ? 'Join Party' : 'Party penuh'),
+                  label: Text(canJoin ? strings.joinParty : strings.partyFull),
                 ),
               ),
             ],

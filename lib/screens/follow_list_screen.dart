@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../services/supabase_service.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
 import '../utils/social_profile_logic.dart';
+import '../widgets/guild_motif.dart';
 import 'profile_screen.dart';
 
 class FollowListScreen extends StatefulWidget {
@@ -23,6 +26,7 @@ class _FollowListScreenState extends State<FollowListScreen> {
   Set<String> myFollowingIds = {};
   String? updatingUserId;
   bool loading = true;
+  String? loadError;
 
   @override
   void initState() {
@@ -31,7 +35,11 @@ class _FollowListScreenState extends State<FollowListScreen> {
   }
 
   Future<void> load() async {
-    setState(() => loading = true);
+    if (!mounted) return;
+    setState(() {
+      loading = true;
+      loadError = null;
+    });
     try {
       final result = await SupabaseService.getFollowList(
         userId: widget.userId,
@@ -43,12 +51,8 @@ class _FollowListScreenState extends State<FollowListScreen> {
         users = result;
         myFollowingIds = followingIds;
       });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memuat daftar: $e')),
-        );
-      }
+    } catch (_) {
+      if (mounted) setState(() => loadError = 'error');
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -78,10 +82,10 @@ class _FollowListScreenState extends State<FollowListScreen> {
           myFollowingIds.add(targetUserId);
         }
       });
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memperbarui follow: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context).errorAction)),
         );
       }
     } finally {
@@ -100,71 +104,111 @@ class _FollowListScreenState extends State<FollowListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.showFollowers ? 'Followers' : 'Following';
+    final strings = AppLocalizations.of(context);
+    final title =
+        widget.showFollowers ? strings.followersList : strings.followingList;
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: loading
           ? const Center(child: CircularProgressIndicator())
-          : users.isEmpty
-              ? Center(child: Text('Belum ada $title.'))
-              : RefreshIndicator(
-                  onRefresh: load,
-                  child: ListView.separated(
-                    itemCount: users.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (context, index) {
-                      final item = users[index];
-                      final profile = item['profiles'];
-                      final userId = (profile is Map
-                              ? profile['id']
-                              : widget.showFollowers
-                                  ? item['follower_id']
-                                  : item['following_id'])
-                          .toString();
-                      final username = profile is Map
-                          ? profile['username']?.toString() ?? 'User'
-                          : 'User';
-                      final avatarUrl = profile is Map
-                          ? profile['avatar_url']?.toString()
-                          : null;
-                      final isFollowing = SocialProfileLogic.isFollowing(
-                        followingIds: myFollowingIds,
-                        targetUserId: userId,
-                      );
-                      final isSelf =
-                          userId == SupabaseService.currentUser?.id;
-
-                      return ListTile(
-                        onTap: () => openProfile(userId),
-                        leading: CircleAvatar(
-                          backgroundImage: avatarUrl == null || avatarUrl.isEmpty
-                              ? null
-                              : NetworkImage(avatarUrl),
-                          child: avatarUrl == null || avatarUrl.isEmpty
-                              ? Text(username.isEmpty
-                                  ? 'U'
-                                  : username[0].toUpperCase())
-                              : null,
+          : loadError != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(strings.errorLoading, textAlign: TextAlign.center),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: load,
+                          icon: const Icon(Icons.refresh),
+                          label: Text(strings.retry),
                         ),
-                        title: Text(username),
-                        trailing: isSelf
-                            ? null
-                            : TextButton(
-                                onPressed: updatingUserId == userId
-                                    ? null
-                                    : () => toggleFollow(userId),
-                                child: Text(
-                                  updatingUserId == userId
-                                      ? '...'
-                                      : isFollowing
-                                          ? 'Following'
-                                          : 'Follow',
-                                ),
-                              ),
-                      );
-                    },
+                      ],
+                    ),
                   ),
-                ),
+                )
+              : users.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const TaverinnSeal(size: 34),
+                            const SizedBox(height: TaverinnSpace.x3),
+                            Text(
+                              strings.noUsersMessage,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: load,
+                      child: ListView.separated(
+                        itemCount: users.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final item = users[index];
+                          final profile = item['profiles'];
+                          final userId = (profile is Map
+                                  ? profile['id']
+                                  : widget.showFollowers
+                                      ? item['follower_id']
+                                      : item['following_id'])
+                              .toString();
+                          final username = profile is Map
+                              ? profile['username']?.toString() ??
+                                  strings.userFallback
+                              : strings.userFallback;
+                          final avatarUrl = profile is Map
+                              ? profile['avatar_url']?.toString()
+                              : null;
+                          final isFollowing = SocialProfileLogic.isFollowing(
+                            followingIds: myFollowingIds,
+                            targetUserId: userId,
+                          );
+                          final isSelf =
+                              userId == SupabaseService.currentUser?.id;
+
+                          return ListTile(
+                            key: ValueKey('follow_user_$userId'),
+                            onTap: () => openProfile(userId),
+                            leading: CircleAvatar(
+                              backgroundImage:
+                                  avatarUrl == null || avatarUrl.isEmpty
+                                      ? null
+                                      : NetworkImage(avatarUrl),
+                              child: avatarUrl == null || avatarUrl.isEmpty
+                                  ? Text(username.isEmpty
+                                      ? 'U'
+                                      : username[0].toUpperCase())
+                                  : null,
+                            ),
+                            title: Text(username),
+                            trailing: isSelf
+                                ? null
+                                : TextButton(
+                                    onPressed: updatingUserId == userId
+                                        ? null
+                                        : () => toggleFollow(userId),
+                                    key: ValueKey('follow_toggle_$userId'),
+                                    child: Text(
+                                      updatingUserId == userId
+                                          ? strings.updating
+                                          : isFollowing
+                                              ? strings.following
+                                              : strings.follow,
+                                    ),
+                                  ),
+                          );
+                        },
+                      ),
+                    ),
     );
   }
 }

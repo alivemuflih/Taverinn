@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
+import '../widgets/guild_motif.dart';
 import 'main_screen.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -29,7 +32,7 @@ class _AuthScreenState extends State<AuthScreen> {
     if (emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty ||
         (!isLogin && usernameController.text.trim().isEmpty)) {
-      showSnack('Lengkapi semua field.');
+      showSnack(AppLocalizations.of(context).completeFields);
       return;
     }
 
@@ -52,7 +55,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
         if (response.session == null) {
           if (!mounted) return;
-          showSnack('Registrasi berhasil. Jika email confirmation aktif, cek email.');
+          showSnack(AppLocalizations.of(context).signUpEmailNotice);
           setState(() => isLogin = true);
           return;
         }
@@ -80,6 +83,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
     return Scaffold(
       body: Center(
         child: ConstrainedBox(
@@ -91,55 +95,61 @@ class _AuthScreenState extends State<AuthScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    const Icon(Icons.sports_esports, size: 60),
+                    const TaverinnSeal(size: 44),
                     const SizedBox(height: 12),
                     Text(
                       'Taverinn',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
-                    const Text('Cari teman mabar tanpa ribet.'),
-                    const SizedBox(height: 28),
+                    Text(strings.findPlayers),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: GuildRule(),
+                    ),
                     if (!isLogin) ...[
                       TextField(
+                        key: const ValueKey('auth_username_input'),
                         controller: usernameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Username',
-                          prefixIcon: Icon(Icons.person_outline),
+                        decoration: InputDecoration(
+                          labelText: strings.username,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: TaverinnSpace.x3),
                     ],
                     TextField(
+                      key: const ValueKey('auth_email_input'),
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        labelText: strings.email,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: TaverinnSpace.x3),
                     TextField(
+                      key: const ValueKey('auth_password_input'),
                       controller: passwordController,
                       obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock_outline),
+                      decoration: InputDecoration(
+                        labelText: strings.password,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: TaverinnSpace.x4),
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
+                        key: const ValueKey('auth_submit_button'),
                         onPressed: loading ? null : submit,
                         child: loading
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : Text(isLogin ? 'Login' : 'Register'),
+                            : Text(isLogin ? strings.signIn : strings.signUp),
                       ),
                     ),
                     TextButton(
@@ -147,9 +157,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           ? null
                           : () => setState(() => isLogin = !isLogin),
                       child: Text(
-                        isLogin
-                            ? 'Belum punya akun? Register'
-                            : 'Sudah punya akun? Login',
+                        isLogin ? strings.noAccount : strings.haveAccount,
                       ),
                     ),
                   ],

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../services/supabase_service.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
+import '../widgets/guild_motif.dart';
 import 'party_room_screen.dart';
 
 class CreateLfgScreen extends StatefulWidget {
@@ -22,6 +25,8 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
   String mode = 'Competitive';
   String language = 'Indonesia';
   bool loading = false;
+  bool loadingGames = true;
+  String? gameLoadError;
 
   final modes = ['Competitive', 'Ranked', 'Casual', 'Custom', 'Co-op', 'Other'];
 
@@ -41,17 +46,29 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
   }
 
   Future<void> loadGames() async {
+    if (!mounted) return;
+    setState(() {
+      loadingGames = true;
+      gameLoadError = null;
+    });
     try {
       final result = await SupabaseService.getGames();
       if (mounted) setState(() => games = result);
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        setState(() => gameLoadError = 'error');
+      }
+    } finally {
+      if (mounted) setState(() => loadingGames = false);
+    }
   }
 
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
     if (gameId == null) {
+      final strings = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih game terlebih dahulu.')),
+        SnackBar(content: Text(strings.selectGameFirst)),
       );
       return;
     }
@@ -73,7 +90,7 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
         MaterialPageRoute(builder: (_) => PartyRoomScreen(postId: postId)),
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Party berhasil dibuat!')),
+        SnackBar(content: Text(AppLocalizations.of(context).partyCreated)),
       );
       formKey.currentState!.reset();
       rankController.clear();
@@ -85,10 +102,10 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
         mode = 'Competitive';
         language = 'Indonesia';
       });
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal membuat party: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context).errorAction)),
         );
       }
     } finally {
@@ -98,114 +115,206 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Buat Party')),
-      body: Form(
-        key: formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(
-              'Buat LFG',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-                'Beri detail agar pemain lain mudah menemukan party kamu.'),
-            const SizedBox(height: 20),
-            DropdownButtonFormField<String>(
-              value: gameId,
-              decoration: const InputDecoration(
-                labelText: 'Game',
-                prefixIcon: Icon(Icons.sports_esports),
-              ),
-              items: games
-                  .map(
-                    (game) => DropdownMenuItem<String>(
-                      value: game['id'].toString(),
-                      child: Text(game['name'].toString()),
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(title: Text(strings.createParty)),
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 720;
+            final horizontalInset = wide ? TaverinnSpace.x6 : TaverinnSpace.x4;
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: Form(
+                  key: formKey,
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalInset,
+                      TaverinnSpace.x4,
+                      horizontalInset,
+                      TaverinnSpace.x10,
                     ),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => gameId = value),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: mode,
-              decoration: const InputDecoration(labelText: 'Mode'),
-              items: modes
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (value) => setState(() => mode = value!),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: rankController,
-              decoration: const InputDecoration(
-                labelText: 'Rank',
-                hintText: 'Contoh: Silver 3 / Mythic',
+                    children: [
+                      Center(
+                        child: TaverinnSeal(size: wide ? 36 : 30),
+                      ),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      Text(strings.writeRecruitment),
+                      const SizedBox(height: TaverinnSpace.x6),
+                      if (gameLoadError != null) ...[
+                        Text(
+                          strings.couldNotLoadGames,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton.icon(
+                            onPressed: loadGames,
+                            icon: const Icon(Icons.refresh),
+                            label: Text(strings.retry),
+                          ),
+                        ),
+                        const SizedBox(height: TaverinnSpace.x3),
+                      ],
+                      Text(
+                        strings.gameDetails,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: TaverinnSpace.x2),
+                      const GuildRule(),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      DropdownButtonFormField<String>(
+                        key: const ValueKey('create_party_game_input'),
+                        initialValue: gameId,
+                        decoration: InputDecoration(
+                          labelText: strings.game,
+                          suffixIcon: loadingGames
+                              ? const Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: SizedBox.square(
+                                    dimension: 18,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  ),
+                                )
+                              : null,
+                        ),
+                        items: games
+                            .map(
+                              (game) => DropdownMenuItem<String>(
+                                value: game['id'].toString(),
+                                child: Text(game['name'].toString()),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) => setState(() => gameId = value),
+                      ),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      DropdownButtonFormField<String>(
+                        key: const ValueKey('create_party_mode_input'),
+                        initialValue: mode,
+                        decoration: InputDecoration(labelText: strings.mode),
+                        items: modes
+                            .map((e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e == 'Other' ? strings.other : e),
+                                ))
+                            .toList(),
+                        onChanged: (value) => setState(() => mode = value!),
+                      ),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      TextFormField(
+                        key: const ValueKey('create_party_rank_input'),
+                        controller: rankController,
+                        decoration: InputDecoration(
+                          labelText: strings.rank,
+                          hintText: strings.rankExample,
+                        ),
+                        validator: (value) =>
+                            value == null || value.trim().isEmpty
+                                ? strings.rankRequired
+                                : null,
+                      ),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      DropdownButtonFormField<String>(
+                        key: const ValueKey('create_party_language_input'),
+                        initialValue: language,
+                        decoration:
+                            InputDecoration(labelText: strings.languageField),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'Indonesia',
+                            child: Text(strings.languageIndonesia),
+                          ),
+                          DropdownMenuItem(
+                            value: 'English',
+                            child: Text(strings.languageEnglish),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Japanese',
+                            child: Text(strings.languageJapanese),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Other',
+                            child: Text(strings.other),
+                          ),
+                        ],
+                        onChanged: (value) => setState(() => language = value!),
+                      ),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      TextFormField(
+                        key: const ValueKey('create_party_max_players_input'),
+                        controller: maxPlayersController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: strings.maxPlayers,
+                        ),
+                        validator: (value) {
+                          final number = int.tryParse(value ?? '');
+                          if (number == null || number < 2 || number > 20) {
+                            return strings.playersRange;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: TaverinnSpace.x6),
+                      Text(
+                        strings.timeAndAnnouncement,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: TaverinnSpace.x2),
+                      const GuildRule(),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      TextFormField(
+                        key: const ValueKey('create_party_time_input'),
+                        controller: playTimeController,
+                        decoration: InputDecoration(
+                          labelText: strings.playTime,
+                          hintText: strings.playTimeExample,
+                        ),
+                        validator: (value) =>
+                            value == null || value.trim().isEmpty
+                                ? strings.timeRequired
+                                : null,
+                      ),
+                      const SizedBox(height: TaverinnSpace.x3),
+                      TextFormField(
+                        key: const ValueKey('create_party_description_input'),
+                        controller: descriptionController,
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          labelText: strings.description,
+                          hintText: strings.descriptionExample,
+                        ),
+                        validator: (value) =>
+                            value == null || value.trim().isEmpty
+                                ? strings.descriptionRequired
+                                : null,
+                      ),
+                      const SizedBox(height: TaverinnSpace.x6),
+                      FilledButton.icon(
+                        key: const ValueKey('create_party_submit_button'),
+                        onPressed: loading ? null : submit,
+                        icon: const Icon(Icons.add),
+                        label: Text(
+                            loading ? strings.creating : strings.publishParty),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Rank wajib diisi'
-                  : null,
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: language,
-              decoration: const InputDecoration(labelText: 'Bahasa'),
-              items: ['Indonesia', 'English', 'Japanese', 'Other']
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (value) => setState(() => language = value!),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: maxPlayersController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Maksimal pemain',
-                prefixIcon: Icon(Icons.groups),
-              ),
-              validator: (value) {
-                final number = int.tryParse(value ?? '');
-                if (number == null || number < 2 || number > 20) {
-                  return 'Masukkan angka 2-20';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: playTimeController,
-              decoration: const InputDecoration(
-                labelText: 'Waktu bermain',
-                hintText: 'Contoh: 20:00',
-              ),
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Waktu wajib diisi'
-                  : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: descriptionController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Deskripsi',
-                hintText: 'Contoh: Cari 3 orang buat push rank santai...',
-              ),
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Deskripsi wajib diisi'
-                  : null,
-            ),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: loading ? null : submit,
-              icon: const Icon(Icons.add),
-              label: Text(loading ? 'Membuat...' : 'Create Party'),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

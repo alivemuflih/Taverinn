@@ -1,0 +1,297 @@
+{
+  "version": 2,
+  "skills": {
+    "dart-concurrency": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/dart-concurrency/SKILL.md",
+      "computedHash": "87115131781dd86b67af4734ec334d161232eddab1935e662de560728f2b96b3"
+    },
+    "dart-language": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/dart-language/SKILL.md",
+      "computedHash": "ca0ec5dc8e8b1af74b8ff45435cd30468df719263a735a908146bbeadd433af7"
+    },
+    "flutter-accessibility": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-accessibility/SKILL.md",
+      "computedHash": "9efa8a28c6b3a1ec3de254b5681ec6429035f99df6df5c6d32dbf72251ed22b6"
+    },
+    "flutter-ai-integration": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-ai-integration/SKILL.md",
+      "computedHash": "7b148eceb518d51a30068f04cc7c307f6ceae3cf4004caf3e6081a37b6ffabc2"
+    },
+    "flutter-animation": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-animation/SKILL.md",
+      "computedHash": "8c65d6b10b4604c2d8a774363c405e04bf5a1f875577b1c51274d6dc24666091"
+    },
+    "flutter-app-workflow": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-app-workflow/SKILL.md",
+      "computedHash": "9e621d0d70817228f8e8307b0118eb96b09b43c511c8597c5ff2183c615d9aa3"
+    },
+    "flutter-architecture": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-architecture/SKILL.md",
+      "computedHash": "f5cc13807152f4300ba9c9973fa6505de60b24a9cbe35fd6f95d7921b6114ece"
+    },
+    "flutter-authentication": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-authentication/SKILL.md",
+      "computedHash": "ddcbdaac5c7a2a78600d23cbf433fd7a1b381feed0e8c4063aaadc8c91fa1493"
+    },
+    "flutter-background-execution": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-background-execution/SKILL.md",
+      "computedHash": "df80e141e2bbd8ba933b34f36c551b09b61775a5de811607d30512d561b28e4c"
+    },
+    "flutter-build-release": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-build-release/SKILL.md",
+      "computedHash": "97e7936e797fe2dbe66b7a205c8a68a5a8a47e7305938037082ecc32392ecd85"
+    },
+    "flutter-ci-cd": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-ci-cd/SKILL.md",
+      "computedHash": "93e99af79d7c554a9027628f3833a183a4b0e139952f0981829c8f26a384a4e5"
+    },
+    "flutter-code-review": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-code-review/SKILL.md",
+      "computedHash": "150b395c882a14a4ef10449b39fcc0fa1aa75b48108feab2b015a22f48980d01"
+    },
+    "flutter-dependency-upgrades": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-dependency-upgrades/SKILL.md",
+      "computedHash": "3d315ddc237c07a31dd8a7287320eaca1c27f91b6c7e1befb209f223e2cbecb2"
+    },
+    "flutter-device-testing": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-device-testing/SKILL.md",
+      "computedHash": "a097238dd073d56ae7338cab5c9c6f112c65a954593e8fc408e13f76af321e57"
+    },
+    "flutter-figma-workflow": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-figma-workflow/SKILL.md",
+      "computedHash": "0882ed22e9ad30dd645d0a92ccd7cd439e955bb7fd3862d240c20f56dc937829"
+    },
+    "flutter-in-app-purchases": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-in-app-purchases/SKILL.md",
+      "computedHash": "61f07508fd99f66bfa8d8c0022e4ad59de59656464f9523e7158e486a3ec23af"
+    },
+    "flutter-localization": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-localization/SKILL.md",
+      "computedHash": "dbc91d1ad15ce5163d7153bea8347593e2906292bede939bd1770bd8cbb42136"
+    },
+    "flutter-location-maps": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-location-maps/SKILL.md",
+      "computedHash": "8a87c1bcfa538519dc28b3a3b5eef81c74ffdfc2f0f848828d9480af6ecda763"
+    },
+    "flutter-media": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-media/SKILL.md",
+      "computedHash": "571142d06c59f718dccb150c464093fd59088725ea3242bd57d707df60892d4f"
+    },
+    "flutter-navigation": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-navigation/SKILL.md",
+      "computedHash": "9ad659240f6fddb264d7e7279981b5a64a9604e847485df0d4c790948632b3d2"
+    },
+    "flutter-networking": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-networking/SKILL.md",
+      "computedHash": "2134e364cc55199de9f9be29547d24e89e70c46aceb3fbc2dc205bad40f5e46b"
+    },
+    "flutter-notifications": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-notifications/SKILL.md",
+      "computedHash": "fb2a01c3559c0d951c35599c94d8ca765cdb0e3c7df9cbf065256e265f883307"
+    },
+    "flutter-observability": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-observability/SKILL.md",
+      "computedHash": "9b73e701099dc543867ba9d2e3be48c7754344581a9ec2e1b4e47c040ce82c65"
+    },
+    "flutter-openapi-client": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-openapi-client/SKILL.md",
+      "computedHash": "ef6f5a371817b4da0c6c40e98e8da166031e7f046e131f1bcb4f75c1eb39cc1b"
+    },
+    "flutter-package-development": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-package-development/SKILL.md",
+      "computedHash": "de64fd8a4ed44da78a7610c44dd3002ae7d324207cb4a06a19ea79b7d0fcf489"
+    },
+    "flutter-payments-checkout": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-payments-checkout/SKILL.md",
+      "computedHash": "b363e8b658dd18d767d52709b71fafb8164dd517a93602b61e5e949cca8ca2ca"
+    },
+    "flutter-performance": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-performance/SKILL.md",
+      "computedHash": "bd64481b90203c7dfa0e92b82f3ed71a753919fd8b7834847bffebe7e9241042"
+    },
+    "flutter-persistence": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-persistence/SKILL.md",
+      "computedHash": "d5256b7bc929a2488392482e6d9a969731a454a4ddc0f1d1965de0c84c419bc0"
+    },
+    "flutter-platform-integration": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-platform-integration/SKILL.md",
+      "computedHash": "4a5b98cb6ab892b728ea1e70a6d07f663ce17a3e76f970d00fb721953aa073aa"
+    },
+    "flutter-product-analytics": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-product-analytics/SKILL.md",
+      "computedHash": "1e3ec1948f5fe4fa887ed2e46a8d7e6ea6600387edf647dc7682fcf924bc30b9"
+    },
+    "flutter-responsive-layout": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-responsive-layout/SKILL.md",
+      "computedHash": "f6058cd6d1e3aa47ee20d2c1e038b51b8179588d1a90918b86c32a1b1f688f07"
+    },
+    "flutter-runtime-debugging": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-runtime-debugging/SKILL.md",
+      "computedHash": "c4640ebffb5ca726bfa73d0e977ae1fd3e8163b8c8e1f6fda1ea2c6f5b5eb454"
+    },
+    "flutter-security": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-security/SKILL.md",
+      "computedHash": "4e6a8b9deb77abcf304e13a69742f5bc4447e2eafe098497e9e4ce6a5888a8f0"
+    },
+    "flutter-state-management": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-state-management/SKILL.md",
+      "computedHash": "529f6bfa058d66cf69d4a3f225e302cf6213c7352320e4dd93a8004a2a6491a4"
+    },
+    "flutter-testing": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-testing/SKILL.md",
+      "computedHash": "116407771a74bc3ed0faf9398e64d94328efe341c3fcb795eb2c41488f69d79d"
+    },
+    "flutter-text-rendering": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-text-rendering/SKILL.md",
+      "computedHash": "9409bde1a758a299fd44492e615b09abbd64754755a707e41aab7243f5ab2007"
+    },
+    "flutter-ui-design": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-ui-design/SKILL.md",
+      "computedHash": "51f6a843bab8864e0584e16e8f953fd67e2e3f971768e2ec2230e8d38431de55"
+    },
+    "flutter-ui-patterns": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-ui-patterns/SKILL.md",
+      "computedHash": "ebafc24d66c62af9a4dfd2c44aed631bcf2ab47501c461f5b2ae43f2356501d1"
+    },
+    "flutter-visual-effects": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-visual-effects/SKILL.md",
+      "computedHash": "b40517b9ad96efff8d8a0c485830f1042e62b6cd27701127f6650cf6ff22e7fa"
+    },
+    "flutter-webview": {
+      "source": "thienqo/flutter-skills",
+      "ref": "v0.14.0",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-webview/SKILL.md",
+      "computedHash": "e89d5eda1ba0dd816ede9422b2e7d9f675571ff4810f87fc5ef7c60e9bab6f99"
+    },
+    "ui-art-direction": {
+      "source": "SpellbourneDZ/ui-design-skill",
+      "sourceType": "github",
+      "skillPath": "skills/ui-art-direction/SKILL.md",
+      "computedHash": "8bd40ea92424badb35e9edfa55a3199200101497c9bfcc95ab6b56318a00c902"
+    },
+    "ui-design": {
+      "source": "SpellbourneDZ/ui-design-skill",
+      "sourceType": "github",
+      "skillPath": "skills/ui-design/SKILL.md",
+      "computedHash": "b032fe2c0bd447171e9276f2243c0f0a870de675a76b67bfde2b1671b3e1345b"
+    }
+  }
+}
