@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/supabase_service.dart';
+import 'party_room_screen.dart';
 
 class PartyScreen extends StatefulWidget {
   const PartyScreen({super.key});
@@ -61,15 +62,24 @@ class _PartyScreenState extends State<PartyScreen> {
                       final game = post is Map ? post['games'] : null;
                       return Card(
                         child: ListTile(
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => PartyRoomScreen(
+                                  postId: item['post_id'].toString(),
+                                ),
+                              ),
+                            );
+                            if (mounted) load();
+                          },
                           leading: CircleAvatar(
                             child: Text(
-                              ((game is Map ? game['name'] : 'G')[0]).toString(),
+                              ((game is Map ? game['name'] : 'G')[0])
+                                  .toString(),
                             ),
                           ),
                           title: Text(
-                            game is Map
-                                ? game['name'].toString()
-                                : 'Game',
+                            game is Map ? game['name'].toString() : 'Game',
                           ),
                           subtitle: Text(
                             '${post['mode']} • ${post['rank']}\n'

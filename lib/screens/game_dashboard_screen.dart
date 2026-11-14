@@ -24,6 +24,16 @@ class _GameDashboardScreenState extends State<GameDashboardScreen> {
   bool saving = false;
 
   @override
+  void dispose() {
+    rankController.dispose();
+    roleController.dispose();
+    gamesPlayedController.dispose();
+    winRateController.dispose();
+    favoriteController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     load();
@@ -69,6 +79,7 @@ class _GameDashboardScreenState extends State<GameDashboardScreen> {
         favoriteCharacter: favoriteController.text.trim(),
       );
       await load();
+      if (!mounted) return;
       rankController.clear();
       roleController.clear();
       gamesPlayedController.text = '0';

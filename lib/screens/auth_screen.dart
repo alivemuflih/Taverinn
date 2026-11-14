@@ -17,6 +17,14 @@ class _AuthScreenState extends State<AuthScreen> {
   final passwordController = TextEditingController();
   final usernameController = TextEditingController();
 
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    usernameController.dispose();
+    super.dispose();
+  }
+
   Future<void> submit() async {
     if (emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty ||
@@ -43,6 +51,7 @@ class _AuthScreenState extends State<AuthScreen> {
         );
 
         if (response.session == null) {
+          if (!mounted) return;
           showSnack('Registrasi berhasil. Jika email confirmation aktif, cek email.');
           setState(() => isLogin = true);
           return;
@@ -55,9 +64,9 @@ class _AuthScreenState extends State<AuthScreen> {
         (_) => false,
       );
     } on AuthException catch (e) {
-      showSnack(e.message);
+      if (mounted) showSnack(e.message);
     } catch (e) {
-      showSnack('Terjadi kesalahan: $e');
+      if (mounted) showSnack('Terjadi kesalahan: $e');
     } finally {
       if (mounted) setState(() => loading = false);
     }

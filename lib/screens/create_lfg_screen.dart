@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/supabase_service.dart';
+import 'party_room_screen.dart';
 
 class CreateLfgScreen extends StatefulWidget {
   const CreateLfgScreen({super.key});
@@ -23,6 +24,15 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
   bool loading = false;
 
   final modes = ['Competitive', 'Ranked', 'Casual', 'Custom', 'Co-op', 'Other'];
+
+  @override
+  void dispose() {
+    rankController.dispose();
+    playTimeController.dispose();
+    descriptionController.dispose();
+    maxPlayersController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -48,7 +58,7 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
 
     setState(() => loading = true);
     try {
-      await SupabaseService.createLfg(
+      final postId = await SupabaseService.createLfg(
         gameId: gameId!,
         mode: mode,
         rank: rankController.text.trim(),
@@ -59,6 +69,9 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
       );
 
       if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => PartyRoomScreen(postId: postId)),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Party berhasil dibuat!')),
       );
@@ -99,7 +112,8 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
                   ),
             ),
             const SizedBox(height: 4),
-            const Text('Beri detail agar pemain lain mudah menemukan party kamu.'),
+            const Text(
+                'Beri detail agar pemain lain mudah menemukan party kamu.'),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(
               value: gameId,
@@ -133,8 +147,9 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
                 labelText: 'Rank',
                 hintText: 'Contoh: Silver 3 / Mythic',
               ),
-              validator: (value) =>
-                  value == null || value.trim().isEmpty ? 'Rank wajib diisi' : null,
+              validator: (value) => value == null || value.trim().isEmpty
+                  ? 'Rank wajib diisi'
+                  : null,
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
@@ -168,8 +183,9 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
                 labelText: 'Waktu bermain',
                 hintText: 'Contoh: 20:00',
               ),
-              validator: (value) =>
-                  value == null || value.trim().isEmpty ? 'Waktu wajib diisi' : null,
+              validator: (value) => value == null || value.trim().isEmpty
+                  ? 'Waktu wajib diisi'
+                  : null,
             ),
             const SizedBox(height: 12),
             TextFormField(

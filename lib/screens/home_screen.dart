@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../services/supabase_service.dart';
+import '../utils/party_room_logic.dart';
+import 'party_room_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> posts = [];
   List<Map<String, dynamic>> games = [];
   bool loading = true;
+  String? loadError;
   String? selectedGame;
   String? selectedRank;
   String? selectedLanguage;
@@ -41,16 +44,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> load() async {
-    setState(() => loading = true);
+    if (!mounted) return;
+    setState(() {
+      loading = true;
+      loadError = null;
+    });
     try {
-      games = await SupabaseService.getGames();
-      posts = await SupabaseService.getLfgPosts(
+      final loadedGames = await SupabaseService.getGames();
+      final loadedPosts = await SupabaseService.getLfgPosts(
         gameId: selectedGame,
         rank: selectedRank,
         language: selectedLanguage,
       );
+      if (!mounted) return;
+      games = loadedGames;
+      posts = loadedPosts;
     } catch (e) {
-      if (mounted) showSnack('Gagal memuat data: $e');
+      if (mounted) {
+        setState(() => loadError = 'Gagal memuat data: $e');
+        showSnack('Gagal memuat data: $e');
+      }
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -64,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String gameName(Map<String, dynamic> post) {
     final game = post['games'];
-    return game is Map ? (game['name'] ?? 'Unknown Game').toString() : 'Unknown Game';
+    return game is Map
+        ? (game['name'] ?? 'Unknown Game').toString()
+        : 'Unknown Game';
   }
 
   String username(Map<String, dynamic> post) {
@@ -104,7 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                   ),
                   const SizedBox(height: 4),
-                  const Text('Temukan pemain berdasarkan game, rank, dan bahasa.'),
+                  const Text(
+                      'Temukan pemain berdasarkan game, rank, dan bahasa.'),
                   const SizedBox(height: 16),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -114,10 +130,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           label: 'Game',
                           value: selectedGame == null
                               ? 'Semua'
-                              : games.firstWhere(
-                                  (g) => g['id'].toString() == selectedGame,
-                                  orElse: () => {'name': 'Game'},
-                                )['name'].toString(),
+                              : games
+                                  .firstWhere(
+                                    (g) => g['id'].toString() == selectedGame,
+                                    orElse: () => {'name': 'Game'},
+                                  )['name']
+                                  .toString(),
                           onTap: () => _chooseGame(),
                         ),
                         _filter(
@@ -140,6 +158,27 @@ class _HomeScreenState extends State<HomeScreen> {
           if (loading)
             const SliverFillRemaining(
               child: Center(child: CircularProgressIndicator()),
+            )
+          else if (loadError != null)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(loadError!, textAlign: TextAlign.center),
+                      const SizedBox(height: 12),
+                      FilledButton.icon(
+                        onPressed: load,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Coba lagi'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             )
           else if (posts.isEmpty)
             const SliverFillRemaining(
@@ -258,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           ListTile(
             title: const Text('Semua game'),
-            onTap: () => Navigator.pop(context, null),
+            onTap: () => Navigator.pop(context, '__all__'),
           ),
           ...games.map(
             (game) => ListTile(
@@ -269,7 +308,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-    setState(() => selectedGame = result);
+    if (!mounted || result == null) return;
+    setState(() => selectedGame = result == '__all__' ? null : result);
     await load();
   }
 
@@ -280,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           ListTile(
             title: const Text('Semua rank'),
-            onTap: () => Navigator.pop(context, null),
+            onTap: () => Navigator.pop(context, '__all__'),
           ),
           ...ranks.map(
             (rank) => ListTile(
@@ -291,7 +331,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-    setState(() => selectedRank = result);
+    if (!mounted || result == null) return;
+    setState(() => selectedRank = result == '__all__' ? null : result);
     await load();
   }
 
@@ -302,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           ListTile(
             title: const Text('Semua bahasa'),
-            onTap: () => Navigator.pop(context, null),
+            onTap: () => Navigator.pop(context, '__all__'),
           ),
           ...languages.map(
             (language) => ListTile(
@@ -313,11 +354,19 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-    setState(() => selectedLanguage = result);
+    if (!mounted || result == null) return;
+    setState(() => selectedLanguage = result == '__all__' ? null : result);
     await load();
   }
 
   void _detail(Map<String, dynamic> post) {
+    final currentPlayers = (post['current_players'] as num?)?.toInt() ?? 1;
+    final maxPlayers = (post['max_players'] as num?)?.toInt() ?? 5;
+    final canJoin = PartyRoomLogic.hasAvailableSlot(
+      currentPlayers: currentPlayers,
+      maxPlayers: maxPlayers,
+    );
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -348,19 +397,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   icon: const Icon(Icons.group_add),
-                  label: const Text('Join Party'),
-                  onPressed: () async {
+                  onPressed: canJoin
+                      ? () async {
                     Navigator.pop(context);
                     try {
                       await SupabaseService.joinParty(post['id'].toString());
                       if (mounted) {
                         showSnack('Berhasil bergabung ke party.');
                         await load();
+                        if (!mounted) return;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => PartyRoomScreen(
+                              postId: post['id'].toString(),
+                            ),
+                          ),
+                        );
                       }
                     } catch (e) {
                       if (mounted) showSnack('Tidak bisa join: $e');
                     }
-                  },
+                  }
+                      : null,
+                  label: Text(canJoin ? 'Join Party' : 'Party penuh'),
                 ),
               ),
             ],

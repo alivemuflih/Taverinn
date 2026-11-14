@@ -36,6 +36,15 @@ Jangan mengasumsikan direktori atau layer lain ada. Periksa struktur terkini seb
 - Ikuti null safety, lint Flutter, gaya Dart, dan komponen Material yang telah digunakan.
 - Jangan membuat file baru jika fungsi tersebut dapat ditambahkan dengan jelas ke file yang sudah ada. Buat file baru bila memang meningkatkan pemisahan tanggung jawab dan sesuai pola project.
 
+## Git Rules
+
+- Jangan melakukan `git push` tanpa persetujuan user.
+- Jangan menjalankan `git reset --hard`.
+- Jangan menghapus atau menimpa perubahan yang dibuat user.
+- Sebelum perubahan besar, periksa `git diff` untuk memahami perubahan yang sudah ada.
+- Setelah implementasi kode selesai, jalankan `flutter analyze` dan laporkan hasilnya. Untuk perubahan dokumentasi saja, gunakan penilaian apakah analisis kode relevan.
+- Jelaskan file yang diubah dan alasan perubahannya dalam ringkasan akhir.
+
 ## Workflow
 
 Sebelum mengubah kode:
