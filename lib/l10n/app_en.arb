@@ -149,5 +149,6 @@
   "members": "Players",
   "hostName": "Host: {name}",
   "@hostName": {"placeholders": {"name": {"type": "String"}}},
-  "missingSupabase": "Supabase is not configured. Start the app with SUPABASE_URL and SUPABASE_ANON_KEY dart-define values."
+  "missingSupabase": "Supabase is not configured. Start the app with SUPABASE_URL and SUPABASE_ANON_KEY dart-define values.",
+  "back": "Back"
 }

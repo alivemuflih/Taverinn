@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../utils/party_room_logic.dart';
 import '../widgets/guild_motif.dart';
+import '../widgets/taverinn_icon.dart';
 import 'main_screen.dart';
 import 'profile_screen.dart';
 
@@ -180,6 +181,10 @@ class _PartyRoomScreenState extends State<PartyRoomScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
+        leading: TaverinnBackButton(
+          label: strings.back,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         title: Row(
           children: [
             const TaverinnSeal(size: 30),
@@ -321,6 +326,12 @@ class _PartyRoomScreenState extends State<PartyRoomScreen> {
     final strings = AppLocalizations.of(context);
     final title = Row(
       children: [
+        TaverinnIcon(
+          assetPath: 'assets/icons/players.svg',
+          size: TaverinnIconSize.status,
+          semanticLabel: strings.partyMembers,
+        ),
+        const SizedBox(width: TaverinnSpace.x2),
         Expanded(
           child: Text(
             strings.partyMembers,
@@ -479,12 +490,22 @@ class _PartyRoomScreenState extends State<PartyRoomScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          strings.chatParty,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
-              ),
+        Row(
+          children: [
+            TaverinnIcon(
+              assetPath: 'assets/icons/chat.svg',
+              size: TaverinnIconSize.status,
+              semanticLabel: strings.chatParty,
+            ),
+            const SizedBox(width: TaverinnSpace.x2),
+            Text(
+              strings.chatParty,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+            ),
+          ],
         ),
         const SizedBox(height: TaverinnSpace.x2),
         const GuildRule(),
@@ -606,7 +627,10 @@ class _PartyRoomScreenState extends State<PartyRoomScreen> {
                     dimension: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.send_outlined),
+                : TaverinnIcon(
+                    assetPath: 'assets/icons/chat.svg',
+                    semanticLabel: strings.sendMessage,
+                  ),
           ),
         ],
       ),

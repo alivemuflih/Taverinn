@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/party_notice.dart';
 import '../widgets/guild_motif.dart';
+import '../widgets/taverinn_icon.dart';
 import 'party_room_screen.dart';
 
 class PartyScreen extends StatefulWidget {
@@ -49,7 +50,14 @@ class _PartyScreenState extends State<PartyScreen> {
       appBar: AppBar(
         title: Text(strings.myParty),
         actions: [
-          IconButton(onPressed: load, icon: const Icon(Icons.refresh)),
+          IconButton(
+            onPressed: load,
+            tooltip: AppLocalizations.of(context).refresh,
+            icon: TaverinnIcon(
+              assetPath: 'assets/icons/refresh.svg',
+              semanticLabel: AppLocalizations.of(context).refresh,
+            ),
+          ),
         ],
       ),
       body: loading
@@ -65,7 +73,10 @@ class _PartyScreenState extends State<PartyScreen> {
                         const SizedBox(height: 12),
                         FilledButton.icon(
                           onPressed: load,
-                          icon: const Icon(Icons.refresh),
+                          icon: TaverinnIcon(
+                            assetPath: 'assets/icons/refresh.svg',
+                            semanticLabel: strings.refresh,
+                          ),
                           label: Text(strings.retry),
                         ),
                       ],

@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^2.0.0
   shared_preferences: ^2.5.3
+  flutter_svg: 2.2.3
   supabase_flutter: ^2.8.0
   intl: ^0.20.3
 
@@ -24,3 +25,5 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    - assets/icons/

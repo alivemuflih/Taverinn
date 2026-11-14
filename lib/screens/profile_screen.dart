@@ -196,7 +196,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               key: const ValueKey('profile_logout_button'),
               onPressed: logout,
               tooltip: strings.logout,
-              icon: const Icon(Icons.logout),
+              icon: TaverinnIcon(
+                assetPath: 'assets/icons/logout.svg',
+                semanticLabel: strings.logout,
+              ),
             ),
         ],
       ),
@@ -213,7 +216,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 12),
                         FilledButton.icon(
                           onPressed: load,
-                          icon: const Icon(Icons.refresh),
+                          icon: TaverinnIcon(
+                            assetPath: 'assets/icons/refresh.svg',
+                            semanticLabel: strings.refresh,
+                          ),
                           label: Text(strings.retry),
                         ),
                       ],
@@ -275,14 +281,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     if (!isOwnProfile) ...[
                                       const SizedBox(height: TaverinnSpace.x2),
-                                      OutlinedButton(
+                                      OutlinedButton.icon(
                                         key: const ValueKey(
                                           'profile_follow_button',
                                         ),
                                         onPressed: updatingFollow
                                             ? null
                                             : toggleFollow,
-                                        child: Text(
+                                        icon: const TaverinnIcon(
+                                          assetPath: 'assets/icons/follow.svg',
+                                          size: TaverinnIconSize.setting,
+                                        ),
+                                        label: Text(
                                           updatingFollow
                                               ? strings.updating
                                               : isFollowing
@@ -380,7 +390,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 );
                                 if (mounted) await load();
                               },
-                              icon: const Icon(Icons.sports_esports_outlined),
+                              icon: TaverinnIcon(
+                                assetPath: 'assets/icons/game.svg',
+                                semanticLabel: strings.game,
+                              ),
                               label: Text(strings.manageGames),
                             ),
                           ],
@@ -459,9 +472,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ListTile(
                               key: const ValueKey('profile_settings'),
                               contentPadding: EdgeInsets.zero,
-                              leading: const TaverinnIcon(
-                                icon: Icons.settings_outlined,
+                              leading: TaverinnIcon(
+                                assetPath: 'assets/icons/settings.svg',
                                 size: TaverinnIconSize.setting,
+                                semanticLabel: strings.settings,
                               ),
                               title: Text(strings.settings),
                               subtitle: Text(strings.settingsSubtitle),

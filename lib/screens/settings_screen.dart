@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/app_preferences.dart';
 import '../theme/app_theme.dart';
 import '../widgets/guild_motif.dart';
+import '../widgets/taverinn_icon.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, required this.preferences});
@@ -16,7 +17,13 @@ class SettingsScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(strings.settings)),
+      appBar: AppBar(
+        leading: TaverinnBackButton(
+          label: strings.back,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(strings.settings),
+      ),
       body: SafeArea(
         top: false,
         child: Center(

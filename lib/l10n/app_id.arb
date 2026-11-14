@@ -149,5 +149,6 @@
   "members": "Pemain",
   "hostName": "Host: {name}",
   "@hostName": {"placeholders": {"name": {"type": "String"}}},
-  "missingSupabase": "Supabase belum dikonfigurasi. Jalankan aplikasi dengan nilai SUPABASE_URL dan SUPABASE_ANON_KEY melalui dart-define."
+  "missingSupabase": "Supabase belum dikonfigurasi. Jalankan aplikasi dengan nilai SUPABASE_URL dan SUPABASE_ANON_KEY melalui dart-define.",
+  "back": "Kembali"
 }

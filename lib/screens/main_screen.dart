@@ -64,23 +64,27 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   destinations: [
                     NavigationRailDestination(
-                      icon: _NavIcon(Icons.home_outlined),
-                      selectedIcon: _NavIcon(Icons.home, selected: true),
+                      icon: _NavIcon('home.svg', label: strings.home),
+                      selectedIcon: _NavIcon('home.svg',
+                          label: strings.home, selected: true),
                       label: Text(strings.home),
                     ),
                     NavigationRailDestination(
-                      icon: _NavIcon(Icons.add_circle_outline),
-                      selectedIcon: _NavIcon(Icons.add_circle, selected: true),
+                      icon: _NavIcon('create.svg', label: strings.create),
+                      selectedIcon: _NavIcon('create.svg',
+                          label: strings.create, selected: true),
                       label: Text(strings.create),
                     ),
                     NavigationRailDestination(
-                      icon: _NavIcon(Icons.groups_outlined),
-                      selectedIcon: _NavIcon(Icons.groups, selected: true),
+                      icon: _NavIcon('party.svg', label: strings.party),
+                      selectedIcon: _NavIcon('party.svg',
+                          label: strings.party, selected: true),
                       label: Text(strings.party),
                     ),
                     NavigationRailDestination(
-                      icon: _NavIcon(Icons.person_outline),
-                      selectedIcon: _NavIcon(Icons.person, selected: true),
+                      icon: _NavIcon('profile.svg', label: strings.profile),
+                      selectedIcon: _NavIcon('profile.svg',
+                          label: strings.profile, selected: true),
                       label: Text(strings.profile),
                     ),
                   ],
@@ -101,26 +105,30 @@ class _MainScreenState extends State<MainScreen> {
             destinations: [
               NavigationDestination(
                 key: ValueKey('main_navigation_home'),
-                icon: _NavIcon(Icons.home_outlined),
-                selectedIcon: _NavIcon(Icons.home, selected: true),
+                icon: _NavIcon('home.svg', label: strings.home),
+                selectedIcon:
+                    _NavIcon('home.svg', label: strings.home, selected: true),
                 label: strings.home,
               ),
               NavigationDestination(
                 key: ValueKey('main_navigation_create'),
-                icon: _NavIcon(Icons.add_circle_outline),
-                selectedIcon: _NavIcon(Icons.add_circle, selected: true),
+                icon: _NavIcon('create.svg', label: strings.create),
+                selectedIcon: _NavIcon('create.svg',
+                    label: strings.create, selected: true),
                 label: strings.create,
               ),
               NavigationDestination(
                 key: ValueKey('main_navigation_party'),
-                icon: _NavIcon(Icons.groups_outlined),
-                selectedIcon: _NavIcon(Icons.groups, selected: true),
+                icon: _NavIcon('party.svg', label: strings.party),
+                selectedIcon:
+                    _NavIcon('party.svg', label: strings.party, selected: true),
                 label: strings.party,
               ),
               NavigationDestination(
                 key: ValueKey('main_navigation_profile'),
-                icon: _NavIcon(Icons.person_outline),
-                selectedIcon: _NavIcon(Icons.person, selected: true),
+                icon: _NavIcon('profile.svg', label: strings.profile),
+                selectedIcon: _NavIcon('profile.svg',
+                    label: strings.profile, selected: true),
                 label: strings.profile,
               ),
             ],
@@ -132,22 +140,23 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 class _NavIcon extends StatelessWidget {
-  const _NavIcon(this.icon, {this.selected = false});
+  const _NavIcon(this.assetName, {required this.label, this.selected = false});
 
-  final IconData icon;
+  final String assetName;
+  final String label;
   final bool selected;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final color = selected ? colors.onSurface : colors.onSurfaceVariant;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         TaverinnIcon(
-          icon: icon,
+          assetPath: 'assets/icons/$assetName',
           size: TaverinnIconSize.navigation,
-          color: color,
+          semanticLabel: label,
+          opacity: selected ? 1 : 0.72,
         ),
         const SizedBox(height: 3),
         Container(

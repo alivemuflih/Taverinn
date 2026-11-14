@@ -461,4 +461,7 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get missingSupabase =>
       'Supabase belum dikonfigurasi. Jalankan aplikasi dengan nilai SUPABASE_URL dan SUPABASE_ANON_KEY melalui dart-define.';
+
+  @override
+  String get back => 'Kembali';
 }

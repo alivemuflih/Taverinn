@@ -4,6 +4,7 @@ import '../services/supabase_service.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/guild_motif.dart';
+import '../widgets/taverinn_icon.dart';
 
 class GameDashboardScreen extends StatefulWidget {
   const GameDashboardScreen({super.key});
@@ -115,7 +116,13 @@ class _GameDashboardScreenState extends State<GameDashboardScreen> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(strings.gameDashboard)),
+      appBar: AppBar(
+        leading: TaverinnBackButton(
+          label: strings.back,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(strings.gameDashboard),
+      ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : loadError != null
@@ -129,7 +136,10 @@ class _GameDashboardScreenState extends State<GameDashboardScreen> {
                         const SizedBox(height: 12),
                         FilledButton.icon(
                           onPressed: load,
-                          icon: const Icon(Icons.refresh),
+                          icon: TaverinnIcon(
+                            assetPath: 'assets/icons/refresh.svg',
+                            semanticLabel: strings.refresh,
+                          ),
                           label: Text(strings.retry),
                         ),
                       ],

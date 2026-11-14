@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/guild_motif.dart';
+import '../widgets/taverinn_icon.dart';
 import 'main_screen.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -84,6 +85,8 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final logoSize =
+        (MediaQuery.sizeOf(context).width * 0.3).clamp(120.0, 160.0).toDouble();
     return Scaffold(
       body: Center(
         child: ConstrainedBox(
@@ -95,18 +98,15 @@ class _AuthScreenState extends State<AuthScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    const TaverinnSeal(size: 44),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Taverinn',
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                    TaverinnIcon(
+                      assetPath: 'assets/icons/taverinn_logo.svg',
+                      size: logoSize,
+                      semanticLabel: 'Taverinn',
                     ),
-                    Text(strings.findPlayers),
                     const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
+                      padding: EdgeInsets.symmetric(
+                        vertical: TaverinnSpace.x4,
+                      ),
                       child: GuildRule(),
                     ),
                     if (!isLogin) ...[

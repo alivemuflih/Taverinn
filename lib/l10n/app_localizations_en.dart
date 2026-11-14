@@ -460,4 +460,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get missingSupabase =>
       'Supabase is not configured. Start the app with SUPABASE_URL and SUPABASE_ANON_KEY dart-define values.';
+
+  @override
+  String get back => 'Back';
 }

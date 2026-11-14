@@ -148,7 +148,7 @@ Do not alter when party status, Ready, chat, or lifecycle state changes. This se
 
 ## 15. Iconography rules
 
-Use the supplied Taverinn icon family wherever it exists. No separate Taverinn icon kit is currently present in the repository; existing files are limited to the web/app launcher icons in `web/icons/`, `web/favicon.png`, and Android launcher mipmaps. `lib/widgets/taverinn_icon.dart` centralizes icon sizing and labels for the current Material fallback so the official screen assets can replace its renderer when they are supplied. Keep icon weight and size consistent, pair less familiar icons with text, and avoid unrelated fantasy imagery.
+Use the supplied Taverinn SVG family directly from `assets/icons/`. `TaverinnIcon` accepts the original asset path and supplies a semantic label without a color filter. Some SVGs contain embedded images, filters, or masks that the current Flutter SVG renderer does not paint; leave their artwork untouched and report the affected asset paths. Android's launcher uses the original `taverinn_icon.svg` as the source for its required mipmap/adaptive icon resources; do not turn that launcher-only conversion into a runtime or UI icon pipeline.
 
 ## 16. Empty, loading, and error states
 

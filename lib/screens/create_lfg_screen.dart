@@ -1,10 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../services/supabase_service.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/guild_motif.dart';
+import '../widgets/taverinn_icon.dart';
 import 'party_room_screen.dart';
+
+const _taverinnBannerAspectRatio = 1024 / 167;
 
 class CreateLfgScreen extends StatefulWidget {
   const CreateLfgScreen({super.key});
@@ -118,7 +123,10 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
     final strings = AppLocalizations.of(context);
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(title: Text(strings.createParty)),
+      appBar: AppBar(
+        toolbarHeight: 48,
+        title: Text(strings.createParty),
+      ),
       body: SafeArea(
         top: false,
         bottom: false,
@@ -126,6 +134,13 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 720;
             final horizontalInset = wide ? TaverinnSpace.x6 : TaverinnSpace.x4;
+            final contentWidth =
+                (math.min(constraints.maxWidth, 680.0) - horizontalInset * 2)
+                    .clamp(0.0, 680.0);
+            final bannerSize = math
+                .min(contentWidth,
+                    (constraints.maxWidth * 0.65).clamp(0.0, 320.0))
+                .toDouble();
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 680),
@@ -134,17 +149,20 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
                   child: ListView(
                     padding: EdgeInsets.fromLTRB(
                       horizontalInset,
-                      TaverinnSpace.x4,
+                      TaverinnSpace.x1,
                       horizontalInset,
                       TaverinnSpace.x10,
                     ),
                     children: [
                       Center(
-                        child: TaverinnSeal(size: wide ? 36 : 30),
+                        child: TaverinnIcon(
+                          assetPath: 'assets/icons/taverinn_banner.svg',
+                          width: bannerSize,
+                          height: bannerSize / _taverinnBannerAspectRatio,
+                        ),
                       ),
-                      const SizedBox(height: TaverinnSpace.x3),
                       Text(strings.writeRecruitment),
-                      const SizedBox(height: TaverinnSpace.x6),
+                      const SizedBox(height: TaverinnSpace.x1),
                       if (gameLoadError != null) ...[
                         Text(
                           strings.couldNotLoadGames,
@@ -154,7 +172,10 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
                           alignment: Alignment.centerLeft,
                           child: TextButton.icon(
                             onPressed: loadGames,
-                            icon: const Icon(Icons.refresh),
+                            icon: TaverinnIcon(
+                              assetPath: 'assets/icons/refresh.svg',
+                              semanticLabel: strings.refresh,
+                            ),
                             label: Text(strings.retry),
                           ),
                         ),
@@ -167,14 +188,18 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
                               fontWeight: FontWeight.w700,
                             ),
                       ),
-                      const SizedBox(height: TaverinnSpace.x2),
+                      const SizedBox(height: TaverinnSpace.x1),
                       const GuildRule(),
-                      const SizedBox(height: TaverinnSpace.x3),
+                      const SizedBox(height: TaverinnSpace.x1),
                       DropdownButtonFormField<String>(
                         key: const ValueKey('create_party_game_input'),
                         initialValue: gameId,
                         decoration: InputDecoration(
                           labelText: strings.game,
+                          prefixIcon: const TaverinnIcon(
+                            assetPath: 'assets/icons/game.svg',
+                            size: TaverinnIconSize.status,
+                          ),
                           suffixIcon: loadingGames
                               ? const Padding(
                                   padding: EdgeInsets.all(12),
@@ -255,6 +280,10 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: strings.maxPlayers,
+                          prefixIcon: const TaverinnIcon(
+                            assetPath: 'assets/icons/players.svg',
+                            size: TaverinnIconSize.status,
+                          ),
                         ),
                         validator: (value) {
                           final number = int.tryParse(value ?? '');
@@ -305,7 +334,10 @@ class _CreateLfgScreenState extends State<CreateLfgScreen> {
                       FilledButton.icon(
                         key: const ValueKey('create_party_submit_button'),
                         onPressed: loading ? null : submit,
-                        icon: const Icon(Icons.add),
+                        icon: TaverinnIcon(
+                          assetPath: 'assets/icons/create.svg',
+                          semanticLabel: strings.createParty,
+                        ),
                         label: Text(
                             loading ? strings.creating : strings.publishParty),
                       ),

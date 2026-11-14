@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import '../utils/party_room_logic.dart';
 import '../widgets/guild_motif.dart';
 import '../widgets/party_notice.dart';
+import '../widgets/taverinn_icon.dart';
 import 'party_room_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -130,7 +131,10 @@ class _HomeScreenState extends State<HomeScreen> {
               IconButton(
                 tooltip: strings.refresh,
                 onPressed: load,
-                icon: const Icon(Icons.refresh),
+                icon: TaverinnIcon(
+                  assetPath: 'assets/icons/refresh.svg',
+                  semanticLabel: strings.refresh,
+                ),
               ),
             ],
           ),
@@ -205,7 +209,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 12),
                       FilledButton.icon(
                         onPressed: load,
-                        icon: const Icon(Icons.refresh),
+                        icon: TaverinnIcon(
+                          assetPath: 'assets/icons/refresh.svg',
+                          semanticLabel: strings.retry,
+                        ),
                         label: Text(strings.retry),
                       ),
                     ],
@@ -242,13 +249,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             });
                             load();
                           },
-                          icon: const Icon(Icons.filter_alt_off_outlined),
+                          icon: TaverinnIcon(
+                            assetPath: 'assets/icons/filter.svg',
+                            semanticLabel: strings.clearFilters,
+                          ),
                           label: Text(strings.clearFilters),
                         )
                       else
                         OutlinedButton.icon(
                           onPressed: load,
-                          icon: const Icon(Icons.refresh),
+                          icon: TaverinnIcon(
+                            assetPath: 'assets/icons/refresh.svg',
+                            semanticLabel: strings.refresh,
+                          ),
                           label: Text(strings.refresh),
                         ),
                     ],
@@ -462,7 +475,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   key: const ValueKey('party_join_button'),
-                  icon: const Icon(Icons.group_add_outlined),
+                  icon: TaverinnIcon(
+                    assetPath: 'assets/icons/players.svg',
+                    semanticLabel: strings.partyMembers,
+                  ),
                   onPressed: canJoin
                       ? () async {
                           Navigator.pop(context);

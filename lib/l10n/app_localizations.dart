@@ -979,6 +979,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Supabase belum dikonfigurasi. Jalankan aplikasi dengan nilai SUPABASE_URL dan SUPABASE_ANON_KEY melalui dart-define.'**
   String get missingSupabase;
+
+  /// No description provided for @back.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get back;
 }
 
 class _AppLocalizationsDelegate

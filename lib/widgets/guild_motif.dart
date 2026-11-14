@@ -3,35 +3,27 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class TaverinnSeal extends StatelessWidget {
-  const TaverinnSeal({super.key, this.size = 36, this.color});
+  const TaverinnSeal({super.key, this.size = 36});
 
   final double size;
-  final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final sealColor = color ?? Theme.of(context).colorScheme.primary;
+    final sealColor = Theme.of(context).colorScheme.primary;
     return ExcludeSemantics(
-      child: Align(
-        alignment: Alignment.centerLeft,
-        widthFactor: 1,
-        heightFactor: 1,
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: CustomPaint(
-            size: Size.square(size),
-            painter: _SealPainter(color: sealColor),
-            child: Center(
-              child: Text(
-                'T',
-                style: TextStyle(
-                  color: sealColor,
-                  fontFamily: 'serif',
-                  fontSize: size * 0.55,
-                  fontWeight: FontWeight.w600,
-                  height: 1,
-                ),
+      child: SizedBox.square(
+        dimension: size,
+        child: CustomPaint(
+          painter: _SealPainter(color: sealColor),
+          child: Center(
+            child: Text(
+              'T',
+              style: TextStyle(
+                color: sealColor,
+                fontFamily: 'serif',
+                fontSize: size * 0.55,
+                fontWeight: FontWeight.w600,
+                height: 1,
               ),
             ),
           ),

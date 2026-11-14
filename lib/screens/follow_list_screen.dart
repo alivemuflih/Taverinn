@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../utils/social_profile_logic.dart';
 import '../widgets/guild_motif.dart';
+import '../widgets/taverinn_icon.dart';
 import 'profile_screen.dart';
 
 class FollowListScreen extends StatefulWidget {
@@ -108,7 +109,13 @@ class _FollowListScreenState extends State<FollowListScreen> {
     final title =
         widget.showFollowers ? strings.followersList : strings.followingList;
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        leading: TaverinnBackButton(
+          label: AppLocalizations.of(context).back,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(title),
+      ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : loadError != null
@@ -122,7 +129,10 @@ class _FollowListScreenState extends State<FollowListScreen> {
                         const SizedBox(height: 12),
                         FilledButton.icon(
                           onPressed: load,
-                          icon: const Icon(Icons.refresh),
+                          icon: TaverinnIcon(
+                            assetPath: 'assets/icons/refresh.svg',
+                            semanticLabel: strings.refresh,
+                          ),
                           label: Text(strings.retry),
                         ),
                       ],
